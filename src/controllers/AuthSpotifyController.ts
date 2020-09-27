@@ -64,7 +64,7 @@ class AuthSpotifyController {
                 } = success.data
 
                 await knex.transaction(async (trx) => {
-                    const save = await trx('users').insert({
+                    const [user_id] = await trx('users').insert({
                         display_name,
                         access_token,
                         email,
@@ -78,7 +78,11 @@ class AuthSpotifyController {
                         type,
                     })
 
-                    return response.json({save});
+                    const query = querystring.stringify({
+                        user_id
+                    });
+
+                    return response.redirect('/user/?' + query);
                 })
 
                 return response.json({success: "Usuário cadastrado com sucesso."})
