@@ -1,6 +1,7 @@
 import {Request, Response} from 'express'
 import axios from 'axios'
 import querystring from 'querystring'
+import knex from '../database/connection'
 
 class AuthSpotifyController {
 
@@ -61,6 +62,24 @@ class AuthSpotifyController {
                     type,
                     uri
                 } = success.data
+
+                await knex.transaction(async (trx) => {
+                    const save = await trx('users').insert({
+                        display_name,
+                        access_token,
+                        email,
+                        country,
+                        spotify_id: id,
+                        url_perfil: external_urls.spotify,
+                        uri_perfil: uri,
+                        api_perfil: href,
+                        image: images[0].url,
+                        product,
+                        type,
+                    })
+
+                    return response.json({save});
+                })
 
                 return response.json({success: "Usuário cadastrado com sucesso."})
 
