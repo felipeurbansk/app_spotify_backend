@@ -11,13 +11,13 @@ class AuthSpotifyController {
 
         console.log('Call: Index function AuthSpotifyController')
 
-        return await response.redirect(process.env.SPOTIFY_API_AUTH_URL + 'authorize?' +
+        return response.redirect(process.env.SPOTIFY_ACCOUNTS_URL + '/authorize?' +
             querystring.stringify({
                 response_type: 'code',
                 client_id: process.env.CLIENT_ID,
                 scope: scope,
                 redirect_uri: process.env.REDIRECT_URL
-            })    
+            })
         )
     }
 
@@ -27,9 +27,7 @@ class AuthSpotifyController {
 
         console.log('Call: Callback function AuthSpotifyController')
 
-        console.log(state)
-
-        return await axios.post('https://accounts.spotify.com/api/token',null, 
+        return await axios.post(process.env.SPOTIFY_ACCOUNTS_URL + '/api/token',null, 
         {
             params: {
                 grant_type : "authorization_code",
@@ -41,17 +39,31 @@ class AuthSpotifyController {
                 'Authorization': 'Basic ' + Buffer.from(process.env.CLIENT_ID + ':' + process.env.CLIENT_SECRET).toString('base64')
             }
         }).then(success => {
-            const {access_token, refresh_token} = success.data
+            const {access_token} = success.data
 
-            console.log({access_token, refresh_token})
-
-            axios.get('https://api.spotify.com/v1/me', {
+            axios.get(process.env.SPOTIFY_API_URL + '/me', {
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + access_token
                 }
-            }).then(success => {
-                return response.json({success: "Dados do usuário", data: success.data})
+            }).then(async success => {
+                
+                const {
+                    country,
+                    display_name,
+                    email,
+                    external_urls,
+                    followers,
+                    href,
+                    id,
+                    images,
+                    product,
+                    type,
+                    uri
+                } = success.data
+
+                return response.json({success: "Usuário cadastrado com sucesso."})
+
             }).catch(error => {
                 return response.status(500).json({error: "Dados do usuário", data: error})
             })
@@ -67,7 +79,7 @@ class AuthSpotifyController {
         
         console.log('Call: Refresh Token function AuthSpotifyController')
 
-        return await axios.post('https://accounts.spotify.com/api/token', {
+        return await axios.post(process.env.SPOTIFY_ACCOUNTS_URL + '/api/token', {
             headers: {
                 'Authorization': 'Basic ' + Buffer.from(process.env.CLIENT_ID + ':' + process.env.CLIENT_SECRET).toString('base64')
             },
