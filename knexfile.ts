@@ -3,11 +3,11 @@
 module.exports = {
 
   development: {
-    client: "mysql",
+    client: process.env.DATABASE_CLIENT,
     connection: {
-      database: "app_spotify",
-      user: "root",
-      password: ""
+      database: process.env.DATABASE_NAME || 'app_spotify',
+      user: process.env.DATABASE_USER || 'root',
+      password: process.env.DATABASE_PASSWORD || ''
     },
     pool: {
       min: 2,
@@ -15,41 +15,20 @@ module.exports = {
     },
     migrations: {
       directory: './src/database/migrations',
-      tableName: "knex_migrations"
+      tableName: 'knex_migrations'
     },
     seeds: {
-      directory: './src/database/seeds',
+      directory: './src/database/seeds'
     },
-    useNullAsDefault: true,
-  },
-
-  test: {
-    client: "mysql",
-    connection: {
-      database: "app_spotify_test",
-      user: "root",
-      password: ""
-    },
-    pool: {
-      min: 2,
-      max: 10
-    },
-    migrations: {
-      directory: './src/test/database/migrations',
-      tableName: "knex_migrations"
-    },
-    seeds: {
-      directory: './src/test/database/seeds',
-    },
-    useNullAsDefault: true,
+    useNullAsDefault: true
   },
 
   production: {
-    client: "postgresql",
+    client: process.env.DATABASE_CLIENT,
     connection: {
-      database: "my_db",
-      user: "username",
-      password: "password"
+      database: process.env.DATABASE_NAME || 'app_spotify',
+      user: process.env.DATABASE_USER || 'root',
+      password: process.env.DATABASE_PASSWORD || ''
     },
     pool: {
       min: 2,
@@ -57,11 +36,11 @@ module.exports = {
     },
     migrations: {
       directory: './src/database/migrations',
-      tableName: "knex_migrations"
+      tableName: 'knex_migrations'
     },
     seeds: {
-      directory: './src/database/seeds',
+      directory: './src/database/seeds'
     }
   }
 
-};
+}
