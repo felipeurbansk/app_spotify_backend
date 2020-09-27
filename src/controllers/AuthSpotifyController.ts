@@ -4,6 +4,16 @@ import querystring from 'querystring'
 import knex from '../database/connection'
 
 class AuthSpotifyController {
+  /**
+   * Get authorization spotify account user
+   *
+   * @param request: Request
+   * @param response: Response
+   *
+   * @constant scope
+   *
+   * @returns redirect
+   */
   async index (request: Request, response: Response) {
     const scope = 'user-read-private user-read-email playlist-read-private user-read-playback-state'
 
@@ -11,24 +21,34 @@ class AuthSpotifyController {
 
     return response.redirect(`${process.env.SPOTIFY_ACCOUNTS_URL}/authorize?${
       querystring.stringify({
+        client_id: process.env.CLIENT_ID,
+        redirect_uri: process.env.REDIRECT_URL,
         response_type: 'code',
-        clientId: process.env.CLIENT_ID,
-        scope,
-        redirect_uri: process.env.REDIRECT_URL
+        scope
       })}`)
   }
 
+  /**
+   * Callback  @user_id
+   *
+   * @param request: Request
+   * @param response: Response
+   *
+   * @constant code
+   *
+   * @returns redirect
+   */
   async callback (request: Request, response: Response) {
-    const code = request.query.code || ''
+    const { code } = request.query
 
     console.log('Call: Callback function AuthSpotifyController')
 
     axios.post(`${process.env.SPOTIFY_ACCOUNTS_URL}/api/token`, null,
       {
         params: {
-          grant_type: 'authorization_code',
+          redirect_uri: process.env.REDIRECT_URL,
           code: code.toString(),
-          redirect_uri: process.env.REDIRECT_URL
+          grant_type: 'authorization_code'
         },
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -78,6 +98,16 @@ class AuthSpotifyController {
     }).catch((error) => response.status(500).json({ error: 'Dados do usuário', data: error }))
   }
 
+  /**
+   * Refresh token
+   *
+   * @param request: Request
+   * @param response: Response
+   *
+   * @constant refresh_token
+   *
+   * @returns redirect
+   */
   async refresh_token (request: Request, response: Response) {
     const { refresh_token } = request.query
 
